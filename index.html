@@ -49,23 +49,24 @@
 
 </head>
 <body>
-    <center>
-        <h1 class="heading">Q2 2018 Unofficial Ingress Survey (Alpha)</h1>
-        <h2 class="subheading"><a href="https://goo.gl/forms/QqlF8plcYIte4vKu1">Take the survey</a></h2>
-        <h3 class="subheading" id="responses"></h3>
-        <br>
-        <div class="container-fluid">
-            <div class="row row-centered">
-                <div class="col-md-6 col-centered text-center col-xs-12">
-                    <center><h3>Which Faction?</h3></center>
-                    <canvas id="factionChart" width="700" height="385"></canvas>
-                </div>
-                <div class="col-md-6 col-centered text-center col-xs-12">
-                    <center><h3>Do You Use IITC?</h3></center>
-                    <canvas id="IITCChart" width="700" height="385"></canvas>
-                </div>
+<center>
+    <h1 class="heading">Q2 2018 Unofficial Ingress Survey (Alpha)</h1>
+    <h2 class="subheading"><span style="color:red;">Note:</span> This site is currently a work in progress. I will continue adding more charts and statistics.</h2>
+    <h2 class="subheading"><a href="https://goo.gl/forms/QqlF8plcYIte4vKu1">Take the survey</a></h2>
+    <h3 class="subheading" id="responses"></h3>
+    <br>
+    <div class="container-fluid">
+        <div class="row row-centered">
+            <div class="col-md-6 col-centered text-center col-xs-12">
+                <center><h3>Which Faction?</h3></center>
+                <canvas id="factionChart" width="700" height="385"></canvas>
+            </div>
+            <div class="col-md-6 col-centered text-center col-xs-12">
+                <center><h3>Do You Use IITC?</h3></center>
+                <canvas id="IITCChart" width="700" height="385"></canvas>
             </div>
         </div>
+    </div>
 
     <footer class="bottom">
         <style>.heart{color:#e25555;}</style>
@@ -77,194 +78,171 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <script>
-    var jsonData;
-    $(document).ready(function(){
-        $.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv', function( data ){
-            jsonData = JSON.parse(CSV2JSON(data));
-            $('h3.subheading#responses').text("Currently " +jsonData.length + " Responses");
-            //console.dir(jsonData);
-            var factionChart = new Chart($('canvas#factionChart'), {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: ComputeFactionRatio(jsonData),
-                        backgroundColor: [
-                            "#00c2ff",
-                            "#28f428"
+        var jsonData;
+        $(document).ready(function(){
+            $.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv', function( data ){
+                jsonData = JSON.parse(CSV2JSON(data));
+                $('h3.subheading#responses').text("Currently " +jsonData.length + " Responses");
+                //console.dir(jsonData);
+                var factionChart = new Chart($('canvas#factionChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: ComputeFactionRatio(jsonData),
+                            backgroundColor: [
+                                "#00c2ff",
+                                "#28f428"
+                            ]
+                        }],
+                        labels: [
+                            'Resistance',
+                            'Enlightened'
                         ]
-                    }],
-                    labels: [
-                        'Resistance',
-                        'Enlightened'
-                    ]
 
-                },
-                options: {
-                    legend: {
-                        labels: {
-                            fontColor: 'white'
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
                         }
                     }
-                }
-            });
-            var IITCChart = new Chart($('canvas#IITCChart'), {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: ComputeIITCRatio(jsonData),
-                        backgroundColor: [
-                            "#ecf0f1",
-                            "#34495e"
+                });
+                var IITCChart = new Chart($('canvas#IITCChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: ComputeIITCRatio(jsonData),
+                            backgroundColor: [
+                                "#ecf0f1",
+                                "#34495e"
+                            ]
+                        }],
+                        labels: [
+                            'Yes',
+                            'No'
                         ]
-                    }],
-                    labels: [
-                        'Yes',
-                        'No'
-                    ]
 
-                },
-                options: {
-                    legend: {
-                        labels: {
-                            fontColor: 'white'
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
                         }
                     }
+                });
+            });
+
+        });
+        function CSVToArray(strData, strDelimiter) {
+            // Check to see if the delimiter is defined. If not,
+            // then default to comma.
+            strDelimiter = (strDelimiter || ",");
+            // Create a regular expression to parse the CSV values.
+            var objPattern = new RegExp((
+                // Delimiters.
+                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+                // Quoted fields.
+                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+                // Standard fields.
+                "([^\"\\" + strDelimiter + "\\r\\n]*))"), "gi");
+            // Create an array to hold our data. Give the array
+            // a default empty first row.
+            var arrData = [[]];
+            // Create an array to hold our individual pattern
+            // matching groups.
+            var arrMatches = null;
+            // Keep looping over the regular expression matches
+            // until we can no longer find a match.
+            while (arrMatches = objPattern.exec(strData)) {
+                // Get the delimiter that was found.
+                var strMatchedDelimiter = arrMatches[1];
+                // Check to see if the given delimiter has a length
+                // (is not the start of string) and if it matches
+                // field delimiter. If id does not, then we know
+                // that this delimiter is a row delimiter.
+                if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
+                    // Since we have reached a new row of data,
+                    // add an empty row to our data array.
+                    arrData.push([]);
+                }
+                // Now that we have our delimiter out of the way,
+                // let's check to see which kind of value we
+                // captured (quoted or unquoted).
+                if (arrMatches[2]) {
+                    // We found a quoted value. When we capture
+                    // this value, unescape any double quotes.
+                    var strMatchedValue = arrMatches[2].replace(
+                        new RegExp("\"\"", "g"), "\"");
+                } else {
+                    // We found a non-quoted value.
+                    var strMatchedValue = arrMatches[3];
+                }
+                // Now that we have our value string, let's add
+                // it to the data array.
+                arrData[arrData.length - 1].push(strMatchedValue);
+            }
+            // Return the parsed data.
+            return (arrData);
+        }
+        function CSV2JSON(csv) {
+            var array = CSVToArray(csv);
+            var objArray = [];
+            for (var i = 1; i < array.length; i++) {
+                objArray[i - 1] = {};
+                for (var k = 0; k < array[0].length && k < array[i].length; k++) {
+                    var key = array[0][k];
+                    objArray[i - 1][key] = array[i][k]
+                }
+            }
+
+            var json = JSON.stringify(objArray);
+            var str = json.replace(/},/g, "},\r\n");
+
+            return str;
+        }
+        function ComputeFactionRatio(jsonData){
+
+            var factions = {"r" : 0, "e" : 0};
+            jsonData.forEach(function(items){
+                if(items["What faction do you play for?"] == "Resistance"){
+                    factions.r++;
+                }else{
+                    factions.e++;
                 }
             });
-            /*var factionChart = new CanvasJS.Chart("factionChartContainer", {
-                backgroundColor: "#000000",
-                animationEnabled: true,
-                title: {
-                    text: "Which faction?"
-                },
-                data: [{
-                    indexLabelFontColor: "white",
-                    type: "pie",
-                    startAngle: 90,
-                    yValueFormatString: "##0.00\"%\"",
-                    indexLabel: "{label} {y}",
-                    dataPoints: ComputeFactionRatio(jsonData)
-                }]
-            });
-            var IITCChart = new CanvasJS.Chart("IITCChartContainer", {
-                backgroundColor: "#000000",
-                animationEnabled: true,
-                title: {
-                    text: "Do you use IITC"
-                },
-                data: [{
-                    indexLabelFontColor: "white",
-                    type: "pie",
-                    startAngle: 90,
-                    yValueFormatString: "##0.00\"%\"",
-                    indexLabel: "{label} {y}",
-                    dataPoints: ComputeIITCRatio(jsonData)
-                }]
-            });
-            factionChart.render();
-            IITCChart.render();*/
-        });
-
-    });
-    function CSVToArray(strData, strDelimiter) {
-        // Check to see if the delimiter is defined. If not,
-        // then default to comma.
-        strDelimiter = (strDelimiter || ",");
-        // Create a regular expression to parse the CSV values.
-        var objPattern = new RegExp((
-            // Delimiters.
-            "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-            // Quoted fields.
-            "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-            // Standard fields.
-            "([^\"\\" + strDelimiter + "\\r\\n]*))"), "gi");
-        // Create an array to hold our data. Give the array
-        // a default empty first row.
-        var arrData = [[]];
-        // Create an array to hold our individual pattern
-        // matching groups.
-        var arrMatches = null;
-        // Keep looping over the regular expression matches
-        // until we can no longer find a match.
-        while (arrMatches = objPattern.exec(strData)) {
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[1];
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
-                // Since we have reached a new row of data,
-                // add an empty row to our data array.
-                arrData.push([]);
-            }
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[2]) {
-                // We found a quoted value. When we capture
-                // this value, unescape any double quotes.
-                var strMatchedValue = arrMatches[2].replace(
-                    new RegExp("\"\"", "g"), "\"");
-            } else {
-                // We found a non-quoted value.
-                var strMatchedValue = arrMatches[3];
-            }
-            // Now that we have our value string, let's add
-            // it to the data array.
-            arrData[arrData.length - 1].push(strMatchedValue);
+            var total = factions.r + factions.e;
+            var results = [];
+            results.push(Number.parseFloat(factions.r / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(100 - (factions.r / total * 100)).toPrecision(2));
+            return results;
         }
-        // Return the parsed data.
-        return (arrData);
-    }
-    function CSV2JSON(csv) {
-        var array = CSVToArray(csv);
-        var objArray = [];
-        for (var i = 1; i < array.length; i++) {
-            objArray[i - 1] = {};
-            for (var k = 0; k < array[0].length && k < array[i].length; k++) {
-                var key = array[0][k];
-                objArray[i - 1][key] = array[i][k]
-            }
+        function ComputeIITCRatio(jsonData) {
+            var responses = {y: 0, n: 0};
+            jsonData.forEach(function(items){
+                if(items["Do you use IITC?"] === "Yes"){
+                    responses.y++;
+                }else{
+                    responses.n++;
+                }
+            });
+            var total = responses.y + responses.n;
+            var results = [];
+            results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            return results;
+
         }
+    </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41144170-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-        var json = JSON.stringify(objArray);
-        var str = json.replace(/},/g, "},\r\n");
-
-        return str;
-    }
-    function ComputeFactionRatio(jsonData){
-
-        var factions = {"r" : 0, "e" : 0};
-        jsonData.forEach(function(items){
-            if(items["What faction do you play for?"] == "Resistance"){
-                factions.r++;
-            }else{
-                factions.e++;
-            }
-        });
-        var total = factions.r + factions.e;
-        var results = [];
-        results.push(Number.parseFloat(factions.r / total * 100).toPrecision(2));
-        results.push(Number.parseFloat(100 - (factions.r / total * 100)).toPrecision(2));
-        return results;
-    }
-    function ComputeIITCRatio(jsonData) {
-        var responses = {y: 0, n: 0};
-        jsonData.forEach(function(items){
-           if(items["Do you use IITC?"] === "Yes"){
-               responses.y++;
-           }else{
-               responses.n++;
-           }
-        });
-        var total = responses.y + responses.n;
-        var results = [];
-        results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
-        results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
-        return results;
-
-    }
-</script>
+        gtag('config', 'UA-41144170-2');
+    </script>
 </body>
 </html>
