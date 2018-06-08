@@ -1,0 +1,185 @@
+<html>
+<head>
+    <title>2018 Ingress Survey</title>
+    <link href="https://fonts.googleapis.com/css?family=Coda|Exo|Exo+2|Roboto|Roboto+Mono" rel="stylesheet">
+    <style>
+        body{
+            background-color: black;
+        }
+        div#chartContainer{
+            background-color: black;
+        }
+        .heading{
+            font-family: 'Coda', cursive;
+            color: white;
+        }
+        section.content{
+            border: solid 1.2px #59fbea;
+        }
+        footer.bottom{
+            position: fixed;
+            left: 0;
+            bottom: 10;
+            width: 100%;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h1 class="heading">Summer 2018 Unofficial Ingress Survey (Alpha)</h1>
+    </center>
+    <section class="content">
+        <div id="factionChartContainer"></div>
+        <div id="IITCChartContainer"></div>
+    </section>
+    <footer class="bottom">
+        <style>.heart{color:#e25555;}</style>
+        Made with <span class="heart">&hearts;</span> in Dallas TX
+    </footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script>
+    var jsonData;
+    $(document).ready(function(){
+        $.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv', function( data ){
+            jsonData = JSON.parse(CSV2JSON(data));
+            console.dir(jsonData);
+            var factionChart = new CanvasJS.Chart("factionChartContainer", {
+                backgroundColor: "#000000",
+                animationEnabled: true,
+                title: {
+                    text: "Which faction?"
+                },
+                data: [{
+                    indexLabelFontColor: "white",
+                    type: "pie",
+                    startAngle: 90,
+                    yValueFormatString: "##0.00\"%\"",
+                    indexLabel: "{label} {y}",
+                    dataPoints: ComputeFactionRatio(jsonData)
+                }]
+            });
+            var IITCChart = new CanvasJS.Chart("IITCChartContainer", {
+                backgroundColor: "#000000",
+                animationEnabled: true,
+                title: {
+                    text: "Do you use IITC"
+                },
+                data: [{
+                    indexLabelFontColor: "white",
+                    type: "pie",
+                    startAngle: 90,
+                    yValueFormatString: "##0.00\"%\"",
+                    indexLabel: "{label} {y}",
+                    dataPoints: ComputeIITCRatio(jsonData)
+                }]
+            });
+            factionChart.render();
+            //IITCChart.render();
+        });
+
+    });
+    function CSVToArray(strData, strDelimiter) {
+        // Check to see if the delimiter is defined. If not,
+        // then default to comma.
+        strDelimiter = (strDelimiter || ",");
+        // Create a regular expression to parse the CSV values.
+        var objPattern = new RegExp((
+            // Delimiters.
+            "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+            // Quoted fields.
+            "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+            // Standard fields.
+            "([^\"\\" + strDelimiter + "\\r\\n]*))"), "gi");
+        // Create an array to hold our data. Give the array
+        // a default empty first row.
+        var arrData = [[]];
+        // Create an array to hold our individual pattern
+        // matching groups.
+        var arrMatches = null;
+        // Keep looping over the regular expression matches
+        // until we can no longer find a match.
+        while (arrMatches = objPattern.exec(strData)) {
+            // Get the delimiter that was found.
+            var strMatchedDelimiter = arrMatches[1];
+            // Check to see if the given delimiter has a length
+            // (is not the start of string) and if it matches
+            // field delimiter. If id does not, then we know
+            // that this delimiter is a row delimiter.
+            if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
+                // Since we have reached a new row of data,
+                // add an empty row to our data array.
+                arrData.push([]);
+            }
+            // Now that we have our delimiter out of the way,
+            // let's check to see which kind of value we
+            // captured (quoted or unquoted).
+            if (arrMatches[2]) {
+                // We found a quoted value. When we capture
+                // this value, unescape any double quotes.
+                var strMatchedValue = arrMatches[2].replace(
+                    new RegExp("\"\"", "g"), "\"");
+            } else {
+                // We found a non-quoted value.
+                var strMatchedValue = arrMatches[3];
+            }
+            // Now that we have our value string, let's add
+            // it to the data array.
+            arrData[arrData.length - 1].push(strMatchedValue);
+        }
+        // Return the parsed data.
+        return (arrData);
+    }
+    function CSV2JSON(csv) {
+        var array = CSVToArray(csv);
+        var objArray = [];
+        for (var i = 1; i < array.length; i++) {
+            objArray[i - 1] = {};
+            for (var k = 0; k < array[0].length && k < array[i].length; k++) {
+                var key = array[0][k];
+                objArray[i - 1][key] = array[i][k]
+            }
+        }
+
+        var json = JSON.stringify(objArray);
+        var str = json.replace(/},/g, "},\r\n");
+
+        return str;
+    }
+    function ComputeFactionRatio(jsonData){
+
+        var factions = {"r" : 0, "e" : 0};
+        jsonData.forEach(function(items){
+            if(items["What faction do you play for?"] == "Resistance"){
+                factions.r++;
+            }else{
+                factions.e++;
+            }
+        });
+        var total = factions.r + factions.e;
+        var results = [];
+        results.push({y: Number.parseFloat(factions.r / total * 100).toPrecision(2), label: "Resistance", color: "#00c2ff"});
+        results.push({y: Number.parseFloat(100 - (factions.r / total * 100)).toPrecision(2), label: "Enlightened", color: "#28f428"});
+        return results;
+    }
+    function ComputeIITCRatio(jsonData) {
+        var responses = {y: 0, n: 0};
+        jsonData.forEach(function(items){
+           if(items["Do you use IITC?"] === "Yes"){
+               responses.y++;
+           }else{
+               responses.n++;
+           }
+        });
+        var total = responses.y + responses.n;
+        var results = [];
+        results.push({y: Number.parseFloat(responses.y / total * 100), label: "Yes", color: "#b9def0"});
+        results.push({y: 100 - Number.parseFloat(responses.y / total * 100), label: "No", color: "#e7c3c3"});
+        return results;
+
+    }
+</script>
+</body>
+</html>
