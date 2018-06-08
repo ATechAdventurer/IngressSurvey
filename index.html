@@ -3,6 +3,7 @@
     <title>2018 Q2 Ingress Survey</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css?family=Coda|Exo|Exo+2|Roboto|Roboto+Mono" rel="stylesheet">
+    <link href="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA760A2++tANsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADoqgAh764A/u6tAP/urQD/764A/uiqACEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAmAAHvrgD+7q4A//ruy//+/v3//v79//z24//10XH/8K8B/kAmAAEAAAAAAAAAAAAAAAAAAAAAAAAAAO+uAPzvrgD/77MV//7+/f/urQL/7awA/+2sAP/00XP//v7+//XVf//10HH/764A/AAAAAAAAAAAAAAAAPKwAP/urQL//f39//C+N//vrgD/764A//789//+/Pf/9tN1//bTdf/225D//v39//XSdP/yrgD/AAAAAAAAAADysAD//v37//7+/f/tqwD/764A/++wBf/57Mj/+evG//bUef/203X/9M9t//7////+/v3/8q8A/wAAAAAAAAAA8rAA//79+//urQH/77QY/+2sAP/+/vz/7qsA/+6rAP/+/v3/9dFz//XXhf/00nT//v79//KvAP8AAAAAAAAAAPKwAP/+/fv/7q0B/++uAP/utR3/7q4O/+2qAP/tqwH/9dJ2//XWgf/203X/9dJ0//7+/f/yrwD/AAAAAAAAAADysAD//v37/+6tAf/trAD//v38//jhov/9/fr//f36//ruzf/+/fz/9NFz//XSdP/+/v3/8q8A/wAAAAAAAAAA8rAA//79+//urQH/+erB///////tpwD/8Lww//XOZv/0z2r///////vz3f/10nT//v79//KvAP8AAAAAAAAAAPKwAP/+/fv/7q0B/+6pAP/uqQD/9NBu//XQbf/10G3/9dBt//XQbf/10G3/9dJ0//7+/f/yrwD/AAAAAAAAAADysAD/7q0C//39/f/wvTf/9dJ0//bTdf/00XH/9NFw//bTdf/203X/9tuQ//79/v/10nT/8q4A/wAAAAAAAAAAAAAAAO+uAPzurQP/9dV///7+/v/10XT/9dFx//XRcP/10XT//v7+//XVf//yyl3/764A/AAAAAAAAAAAAAAAAAAAAAAAAAAAQCYAAe+uAv710nL//PXj//7+/v/+/v7//Pbk//bTdP/vrQD+QCYAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6aUAIu6sAP7203X/9dJ0/+6sAP7oqgAhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA760A2u+tANsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/n8AAPw/AADwDwAAwAMAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAwAMAAPAPAAD8PwAA/n8AAA==" rel="icon" type="image/x-icon" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
     <style>
         body{
@@ -20,7 +21,7 @@
         section.content{
             margin-left: 40px;
             float: left;
-            border: solid 1.2px #59fbea;
+
             width: 45vw;
         }
         footer.bottom{
@@ -46,8 +47,9 @@
             margin-right:-4px;
         }
         div.chartHolder{
-            margin-bottom: 20px;
-            margin-top: 20px;
+            border: solid 1.2px #59fbea;
+            padding-bottom: 20px;
+            padding-top: 20px;
         }
     </style>
 
@@ -81,12 +83,17 @@
                 <center><h3>Have you attended an Anomaly?</h3></center>
                 <canvas id="anomalyChart" width="700" height="385"></canvas>
             </div>
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                <center><h3>Do you play Pokemon Go?</h3></center>
+                <canvas id="pokemonChart" width="700" height="385"></canvas>
+            </div>
         </div>
     </div>
 
     <footer class="bottom">
         Not officially affiliated with Ingress or Niantic Labs.<style>.heart{color:#e25555;}</style>
         Made with <span class="heart">&hearts;</span> in Dallas TX
+        <a href="https://github.com/ATechAdventurer/IngressSurvey/issues">Report an Issue</a>
     </footer>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -242,58 +249,54 @@
                         rotation: Math.PI
                     }
                 });
+                var PokemonGoChart = new Chart($('canvas#pokemonChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: ComputePokemonGoRatio(jsonData),
+                            backgroundColor: [
+                                "#ee1515",
+                                "#f0f0f0"
+                            ]
+                        }],
+                        labels: [
+                            'Yes',
+                            'No'
+                        ]
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
+                        },
+                        rotation: Math.PI
+                    }
+                });
             });
 
         });
         function CSVToArray(strData, strDelimiter) {
-            // Check to see if the delimiter is defined. If not,
-            // then default to comma.
             strDelimiter = (strDelimiter || ",");
-            // Create a regular expression to parse the CSV values.
             var objPattern = new RegExp((
-                // Delimiters.
                 "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-                // Quoted fields.
                 "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                // Standard fields.
                 "([^\"\\" + strDelimiter + "\\r\\n]*))"), "gi");
-            // Create an array to hold our data. Give the array
-            // a default empty first row.
             var arrData = [[]];
-            // Create an array to hold our individual pattern
-            // matching groups.
             var arrMatches = null;
-            // Keep looping over the regular expression matches
-            // until we can no longer find a match.
             while (arrMatches = objPattern.exec(strData)) {
-                // Get the delimiter that was found.
                 var strMatchedDelimiter = arrMatches[1];
-                // Check to see if the given delimiter has a length
-                // (is not the start of string) and if it matches
-                // field delimiter. If id does not, then we know
-                // that this delimiter is a row delimiter.
                 if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
-                    // Since we have reached a new row of data,
-                    // add an empty row to our data array.
                     arrData.push([]);
                 }
-                // Now that we have our delimiter out of the way,
-                // let's check to see which kind of value we
-                // captured (quoted or unquoted).
                 if (arrMatches[2]) {
-                    // We found a quoted value. When we capture
-                    // this value, unescape any double quotes.
                     var strMatchedValue = arrMatches[2].replace(
                         new RegExp("\"\"", "g"), "\"");
                 } else {
-                    // We found a non-quoted value.
                     var strMatchedValue = arrMatches[3];
                 }
-                // Now that we have our value string, let's add
-                // it to the data array.
                 arrData[arrData.length - 1].push(strMatchedValue);
             }
-            // Return the parsed data.
             return (arrData);
         }
         function CSV2JSON(csv) {
@@ -306,14 +309,11 @@
                     objArray[i - 1][key] = array[i][k]
                 }
             }
-
             var json = JSON.stringify(objArray);
             var str = json.replace(/},/g, "},\r\n");
-
             return str;
         }
         function ComputeFactionRatio(jsonData){
-
             var factions = {"r" : 0, "e" : 0};
             jsonData.forEach(function(items){
                 if(items["What faction do you play for?"] === "Resistance"){
@@ -413,6 +413,22 @@
             var results = [];
             results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
             results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            return results;
+        }
+        function ComputePokemonGoRatio(jsonData){
+            var responses = {y: 0, n: 0};
+            jsonData.forEach(function(items){
+                if(items["Do you play Pokemon Go?"] === "Yes"){
+                    responses.y++;
+                }else{
+                    responses.n++;
+                }
+            });
+            var total = responses.y + responses.n;
+            var results = [];
+            results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            console.dir(results);
             return results;
         }
 
