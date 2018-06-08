@@ -45,6 +45,10 @@
             /* inline-block space fix */
             margin-right:-4px;
         }
+        div.chartHolder{
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
     </style>
 
 </head>
@@ -57,19 +61,27 @@
     <br>
     <div class="container-fluid">
         <div class="row row-centered">
-            <div class="col-md-6 col-centered text-center col-xs-12">
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
                 <center><h3>Which Faction?</h3></center>
                 <canvas id="factionChart" width="700" height="385"></canvas>
             </div>
-            <div class="col-md-6 col-centered text-center col-xs-12">
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
                 <center><h3>Do You Use IITC?</h3></center>
                 <canvas id="IITCChart" width="700" height="385"></canvas>
+            </div>
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                <center><h3>Mobile Device</h3></center>
+                <canvas id="deviceChart" width="700" height="385"></canvas>
+            </div>
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                <center><h3>Have you attended an Anomaly?</h3></center>
+                <canvas id="anomalyChart" width="700" height="385"></canvas>
             </div>
         </div>
     </div>
 
     <footer class="bottom">
-        <style>.heart{color:#e25555;}</style>
+        Not officially affiliated with Ingress or Niantic Labs.<style>.heart{color:#e25555;}</style>
         Made with <span class="heart">&hearts;</span> in Dallas TX
     </footer>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -130,6 +142,60 @@
                                 fontColor: 'white'
                             }
                         }
+                    }
+                });
+                var deviceChart = new Chart($('canvas#deviceChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: ComputeDeviceRatio(jsonData),
+                            backgroundColor: [
+                                "#33d9b2",
+                                "#218c74",
+                                "#706fd3",
+                                "#474787",
+                                "#f7f1e3"
+                            ]
+                        }],
+                        labels: [
+                            'Android Phone',
+                            'Android Tablet',
+                            'iPhone',
+                            'iPad',
+                            'Other'
+                        ]
+
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
+                        }
+                    }
+                });
+                var anomalyChart = new Chart($('canvas#anomalyChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: ComputeAnomalyRatio(jsonData),
+                            backgroundColor: [
+                                "#1B9CFC",
+                                "#B33771"
+                            ]
+                        }],
+                        labels: [
+                            'Yes',
+                            'No'
+                        ]
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
+                        },
+                        rotation: Math.PI
                     }
                 });
             });
@@ -206,7 +272,7 @@
 
             var factions = {"r" : 0, "e" : 0};
             jsonData.forEach(function(items){
-                if(items["What faction do you play for?"] == "Resistance"){
+                if(items["What faction do you play for?"] === "Resistance"){
                     factions.r++;
                 }else{
                     factions.e++;
@@ -234,6 +300,53 @@
             return results;
 
         }
+        function ComputeDeviceRatio(jsonData) {
+            var responses = {aphone: 0, iphone: 0, atablet: 0, ipad: 0, other: 0};
+            jsonData.forEach(function(items){
+                switch (items["What kind of device do you play the most often on?"]){
+                    case "Android Phone":
+                        responses.aphone++;
+                        break;
+                    case "iPhone":
+                        responses.iphone++;
+                        break;
+                    case "iPad":
+                        responses.ipad++;
+                        break;
+                    case "Android Tablet":
+                        responses.atablet++;
+                        break;
+                    default:
+                        responses.other++;
+                        break;
+                }
+            });
+            var total = responses.aphone + responses.atablet + responses.iphone + responses.ipad + responses.other;
+            var results = [];
+            results.push(Number.parseFloat(responses.aphone / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(responses.atablet / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(responses.iphone / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(responses.ipad / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(responses.other / total * 100).toPrecision(2));
+            return results;
+
+        }
+        function ComputeAnomalyRatio(jsonData) {
+            var responses = {y: 0, n: 0};
+            jsonData.forEach(function(items){
+                if(items["Have you attended an anomaly?"] === "Yes"){
+                    responses.y++;
+                }else{
+                    responses.n++;
+                }
+            });
+            var total = responses.y + responses.n;
+            var results = [];
+            results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+            results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            return results;
+        }
+
     </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41144170-2"></script>
