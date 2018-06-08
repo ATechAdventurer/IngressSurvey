@@ -261,7 +261,7 @@
         var total = responses.y + responses.n;
         var results = [];
         results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
-        results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+        results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
         return results;
 
     }
