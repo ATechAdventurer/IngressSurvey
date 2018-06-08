@@ -107,7 +107,10 @@
     <script>
         var jsonData;
         $(document).ready(function(){
-            $.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv', function( data ){
+            $.ajax({
+                url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv',
+                timeout: 3000,
+            }).done(function( data ){
                 jsonData = JSON.parse(CSV2JSON(data));
                 $('h3.subheading#responses').text("Currently " +jsonData.length + " Responses");
                 //console.dir(jsonData);
