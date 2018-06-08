@@ -1,20 +1,25 @@
 <html>
 <head>
-    <title>2018 Ingress Survey</title>
+    <title>2018 Q2 Ingress Survey</title>
     <link href="https://fonts.googleapis.com/css?family=Coda|Exo|Exo+2|Roboto|Roboto+Mono" rel="stylesheet">
     <style>
         body{
             background-color: black;
+            color: white;
+            font-family: 'Coda', cursive;
         }
         div#chartContainer{
             background-color: black;
         }
-        .heading{
-            font-family: 'Coda', cursive;
+        .heading, .subheading{
+
             color: white;
         }
         section.content{
+            margin-left: 40px;
+            float: left;
             border: solid 1.2px #59fbea;
+            width: 45vw;
         }
         footer.bottom{
             position: fixed;
@@ -24,15 +29,25 @@
             color: white;
             text-align: center;
         }
+        a:link{
+            color: #59fbea;
+        }
     </style>
+
 </head>
 <body>
     <center>
-        <h1 class="heading">Summer 2018 Unofficial Ingress Survey (Alpha)</h1>
+        <h1 class="heading">Q2 2018 Unofficial Ingress Survey (Alpha)</h1>
+        <h2 class="subheading"><a href="https://goo.gl/forms/QqlF8plcYIte4vKu1">Take the survey</a></h2>
+        <h3 class="subheading" id="responses"></h3>
     </center>
     <section class="content">
-        <div id="factionChartContainer"></div>
-        <div id="IITCChartContainer"></div>
+        <center><h3>Which Faction?</h3></center>
+        <canvas id="factionChart" width="700" height="385"></canvas>
+    </section>
+    <section class="content">
+        <center><h3>Do You Use IITC?</h3></center>
+        <canvas id="IITCChart" width="700" height="385"></canvas>
     </section>
     <footer class="bottom">
         <style>.heart{color:#e25555;}</style>
@@ -40,13 +55,63 @@
     </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 <script>
     var jsonData;
     $(document).ready(function(){
         $.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vRiJXhV13vGxD8OrxTrgmwhHzsSTEd_Oao2V2Ufalr88aOqUMO_N9IAv1Hg1xbStZiIIC2YopZRUQMO/pub?output=csv', function( data ){
             jsonData = JSON.parse(CSV2JSON(data));
-            console.dir(jsonData);
-            var factionChart = new CanvasJS.Chart("factionChartContainer", {
+            $('h3.subheading#responses').text("Currently " +jsonData.length + " Responses");
+            //console.dir(jsonData);
+            var factionChart = new Chart($('canvas#factionChart'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: ComputeFactionRatio(jsonData),
+                        backgroundColor: [
+                            "#00c2ff",
+                            "#28f428"
+                        ]
+                    }],
+                    labels: [
+                        'Resistance',
+                        'Enlightened'
+                    ]
+
+                },
+                options: {
+                    legend: {
+                        labels: {
+                            fontColor: 'white'
+                        }
+                    }
+                }
+            });
+            var IITCChart = new Chart($('canvas#IITCChart'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: ComputeIITCRatio(jsonData),
+                        backgroundColor: [
+                            "#00c2ff",
+                            "#28f428"
+                        ]
+                    }],
+                    labels: [
+                        'Yes',
+                        'No'
+                    ]
+
+                },
+                options: {
+                    legend: {
+                        labels: {
+                            fontColor: 'white'
+                        }
+                    }
+                }
+            });
+            /*var factionChart = new CanvasJS.Chart("factionChartContainer", {
                 backgroundColor: "#000000",
                 animationEnabled: true,
                 title: {
@@ -77,7 +142,7 @@
                 }]
             });
             factionChart.render();
-            //IITCChart.render();
+            IITCChart.render();*/
         });
 
     });
@@ -160,8 +225,8 @@
         });
         var total = factions.r + factions.e;
         var results = [];
-        results.push({y: Number.parseFloat(factions.r / total * 100).toPrecision(2), label: "Resistance", color: "#00c2ff"});
-        results.push({y: Number.parseFloat(100 - (factions.r / total * 100)).toPrecision(2), label: "Enlightened", color: "#28f428"});
+        results.push(Number.parseFloat(factions.r / total * 100).toPrecision(2));
+        results.push(Number.parseFloat(100 - (factions.r / total * 100)).toPrecision(2));
         return results;
     }
     function ComputeIITCRatio(jsonData) {
@@ -175,8 +240,8 @@
         });
         var total = responses.y + responses.n;
         var results = [];
-        results.push({y: Number.parseFloat(responses.y / total * 100), label: "Yes", color: "#b9def0"});
-        results.push({y: 100 - Number.parseFloat(responses.y / total * 100), label: "No", color: "#e7c3c3"});
+        results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+        results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
         return results;
 
     }
