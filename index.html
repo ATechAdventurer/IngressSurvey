@@ -87,6 +87,10 @@
                 <center><h3>Do you play Pokemon Go?</h3></center>
                 <canvas id="pokemonChart" width="700" height="385"></canvas>
             </div>
+            <div class="chartHolder col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                <center><h3>How do you get around?</h3></center>
+                <canvas id="travelChart" width="700" height="385"></canvas>
+            </div>
         </div>
     </div>
 
@@ -273,6 +277,42 @@
                         rotation: Math.PI
                     }
                 });
+                var TransportationChart = new Chart($('canvas#travelChart'), {
+                    type: 'pie',
+                    data: {
+                        datasets: [{
+                            data: TransportationRatio(jsonData),
+                            backgroundColor: [
+                                "#3CB371",
+                                "#EEE8AA",
+                                "#FF69B4",
+                                "#BC8F8F",
+                                "#FF6347",
+                                "#ADD8E6",
+                                "#8B008B",
+                                "#4169E1"
+                            ]
+                        }],
+                        labels: [
+                            "Walking",
+                            "Public Transportation",
+                            "Car",
+                            "Bike",
+                            "Rideshare ",
+                            "Skates",
+                            "Motorcycle",
+                            "Other"
+                        ]
+
+                    },
+                    options: {
+                        legend: {
+                            labels: {
+                                fontColor: 'white'
+                            }
+                        }
+                    }
+                });
             });
 
         });
@@ -428,6 +468,51 @@
             var results = [];
             results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
             results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            console.dir(results);
+            return results;
+        }
+        function TransportationRatio(jsonData){
+            var responses = {w:0, pt:0, c: 0, b:0, rs:0, skate:0, motor:0, other:0};
+            jsonData.forEach(function(items){
+                switch (items["How do you most often get around while playing?"]){
+                    case "Walking":
+                        responses.w++;
+                        break;
+                    case "Public Transportation":
+                        responses.pt++;
+                        break;
+                    case "Car":
+                        responses.c++;
+                        break;
+                    case "Bicycle":
+                        responses.b++;
+                        break;
+                    case "Taxi / Uber / Lyft":
+                        responses.rs++;
+                        break;
+                    case "Skateboard, Scooter, Rollerblades":
+                        responses.skate++;
+                        break;
+                    case "Motorcycle":
+                        responses.motor++;
+                        break;
+                    default:
+                        responses.other++;
+                        break;
+                }
+            });
+            var total = responses.w + responses.pt + responses.c + responses.b + responses.rs + responses.skate + responses.motor + responses.other;
+            var results = [];
+            //results.push(Number.parseFloat(responses.y / total * 100).toPrecision(2));
+            //results.push(Number.parseFloat(100 - (responses.y / total * 100)).toPrecision(2));
+            results.push(responses.w);
+            results.push(responses.pt);
+            results.push(responses.c);
+            results.push(responses.b);
+            results.push(responses.rs);
+            results.push(responses.skate);
+            results.push(responses.motor);
+            results.push(responses.other);
             console.dir(results);
             return results;
         }
