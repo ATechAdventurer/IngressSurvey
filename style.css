@@ -1,0 +1,45 @@
+body{
+    background-color: black;
+    color: white;
+    font-family: 'Coda', cursive;
+}
+div#chartContainer{
+    background-color: black;
+}
+.heading, .subheading{
+
+    color: white;
+}
+section.content{
+    margin-left: 40px;
+    float: left;
+
+    width: 45vw;
+}
+footer.bottom{
+    position: fixed;
+    left: 0;
+    bottom: 10;
+    width: 100%;
+    color: white;
+    text-align: center;
+}
+a:link{
+    color: #59fbea;
+}
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+div.chartHolder{
+    border: solid 1.2px #59fbea;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
