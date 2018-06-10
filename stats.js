@@ -189,13 +189,13 @@ $(document).ready(function() {
                 datasets: [{
                     data: TransportationRatio(jsonData),
                     backgroundColor: [
-                        "#3CB371",
-                        "#EEE8AA",
-                        "#FF69B4",
-                        "#BC8F8F",
-                        "#FF6347",
-                        "#ADD8E6",
-                        "#8B008B",
+                        "#5E9294",
+                        "#04B2D9",
+                        "#08C471",
+                        "#984577",
+                        "#7B7D7B",
+                        "#21D5C2",
+                        "#E8C47E",
                         "#4169E1"
                     ]
                 }],
@@ -225,8 +225,9 @@ $(document).ready(function() {
                 datasets: [{
                     data: ComputeYNRatio(jsonData, "Have you kept up with the Ingress story-line?"),
                     backgroundColor: [
-                        "#3CB371",
-                        "#EEE8AA",
+                        "#43AC65",
+                        "#1492C0"
+
                     ]
                 }],
                 labels: [
